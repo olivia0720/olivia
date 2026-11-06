@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>神秘之星 · ARCANA | 奇幻塔羅 RPG 展演平台 Showcase</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Noto+Serif+TC:wght@400;600;900&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: {
+                            100: '#FFF9D2',
+                            300: '#FFE57F',
+                            500: '#D4AF37',
+                            600: '#B8860B',
+                            700: '#AA7C11',
+                            900: '#422F00',
+                        },
+                        mystic: {
+                            bg: '#06040C',
+                            card: 'rgba(21, 16, 42, 0.75)',
+                            border: 'rgba(212, 175, 55, 0.3)',
+                            accent: '#8B5CF6'
+                        }
+                    },
+                    fontFamily: {
+                        cinzel: ['Cinzel', 'serif'],
+                        serif: ['Noto Serif TC', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #06040C;
+            color: #E2E8F0;
+            font-family: 'Noto Serif TC', serif;
+            overflow-x: hidden;
+        }
+
+        .gold-glow-text {
+            background: linear-gradient(135deg, #FFF9D2 0%, #D4AF37 50%, #AA7C11 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 12px rgba(212, 175, 55, 0.35));
+        }
+
+        .gold-border-glow {
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.15), inset 0 0 15px rgba(212, 175, 55, 0.08);
+            backdrop-filter: blur(12px);
+        }
+
+        .gold-border-glow:hover {
+            border-color: rgba(212, 175, 55, 0.8);
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.4), inset 0 0 20px rgba(212, 175, 55, 0.15);
+        }
+
+        .gold-btn {
+            background: linear-gradient(135deg, #D4AF37 0%, #B8860B 50%, #8A6200 100%);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .gold-btn:hover {
+            transform: translateY(-2px) scale(1.03);
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.6);
+        }
+
+        /* Tarot Card 3D Flip Styles */
+        .tarot-card-container {
+            perspective: 1000px;
+        }
+
+        .tarot-card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+        }
+
+        .tarot-card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .card-front {
+            transform: rotateY(180deg);
+            background: linear-gradient(145deg, #18122B, #0F0B1E);
+            border: 2px solid #D4AF37;
+        }
+
+        .card-back {
+            background: linear-gradient(135deg, #1A0B2E 0%, #090314 100%);
+            border: 2px solid #6D28D9;
+            box-shadow: inset 0 0 20px rgba(109, 40, 217, 0.5);
+        }
+
+        .holo-sheen {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(
+                115deg, 
+                transparent 20%, 
+                rgba(255, 255, 255, 0.15) 45%, 
+                rgba(212, 175, 55, 0.25) 50%, 
+                rgba(139, 92, 246, 0.25) 55%, 
+                transparent 80%
+            );
+            pointer-events: none;
+            opacity: 0.6;
+            mix-blend-mode: color-dodge;
+        }
+
+        /* Ambient rotating magic ring */
+        @keyframes rotateRing {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .animate-rotate-ring {
+            animation: rotateRing 40s linear infinite;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #06040C;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2E2250;
+            border-radius: 4px;
+            border: 1px solid #D4AF37;
+        }
+    </style>
+</head>
+<body class="relative min-h-screen selection:bg-purple-900 selection:text-gold-300">
+
+    <!-- Interactive Canvas Particle Background -->
+    <canvas id="starCanvas" class="fixed inset-0 pointer-events-none z-0"></canvas>
+
+    <!-- Navigation Bar -->
+    <nav class="fixed top-0 inset-x-0 z-50 bg-mystic-bg/80 backdrop-blur-md border-b border-gold-500/20 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <i class="fa-solid fa-hat-wizard text-2xl text-gold-500 animate-pulse"></i>
+                <span class="font-cinzel text-xl font-bold tracking-widest gold-glow-text">ARCANA</span>
+            </div>
+            <div class="hidden md:flex items-center space-x-8 text-xs tracking-widest text-slate-300 font-semibold">
+                <a href="#hero" class="hover:text-gold-300 transition flex items-center gap-1.5"><i class="fa-solid fa-house text-gold-500"></i> 首頁</a>
+                <a href="#game-section" class="hover:text-gold-300 transition flex items-center gap-1.5"><i class="fa-solid fa-gamepad text-gold-500"></i> 遊戲體驗區</a>
+                <a href="#timeline" class="hover:text-gold-300 transition flex items-center gap-1.5"><i class="fa-solid fa-timeline text-gold-500"></i> 開發演進</a>
+                <a href="#features" class="hover:text-gold-300 transition flex items-center gap-1.5"><i class="fa-solid fa-wand-magic-sparkles text-gold-500"></i> 四大核心</a>
+                <a href="#gallery" class="hover:text-gold-300 transition flex items-center gap-1.5"><i class="fa-solid fa-image text-gold-500"></i> 視覺展演</a>
+            </div>
+            <a href="#game-section" class="gold-btn text-mystic-bg font-bold px-4 py-2 rounded-full text-xs flex items-center gap-2 shadow-lg">
+                <i class="fa-solid fa-play"></i> 立即體驗遊戲
+            </a>
+        </div>
+    </nav>
+
+    <!-- 1. HERO HEADER SECTION -->
+    <section id="hero" class="relative z-10 pt-36 pb-20 md:pt-48 md:pb-32 px-4 flex flex-col items-center justify-center text-center">
+        <!-- Magic Ring Background Graphic -->
+        <div class="absolute w-[320px] h-[320px] md:w-[600px] md:h-[600px] border border-gold-500/15 rounded-full animate-rotate-ring pointer-events-none -z-10 flex items-center justify-center">
+            <div class="w-[80%] h-[80%] border border-dashed border-purple-500/20 rounded-full"></div>
+        </div>
+
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-mystic-card border border-gold-500/40 text-gold-300 text-xs font-semibold mb-6 shadow-xl">
+            <i class="fa-solid fa-sparkles text-gold-500"></i>
+            <span>塔羅 RPG ✕ 星相命運占卜 ✕ 展演級平台</span>
+        </div>
+
+        <h1 class="font-cinzel text-4xl sm:text-6xl md:text-7xl font-black tracking-wider gold-glow-text mb-4 leading-tight">
+            神秘之星 · ARCANA
+        </h1>
+
+        <p class="text-sm md:text-xl text-slate-300 max-w-2xl font-light mb-10 tracking-wide">
+            探索 22 張大阿爾克那手繪繪圖、個人化星盤共鳴與分歧命運試煉
+        </p>
+
+        <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+            <a href="#game-section" class="gold-btn text-mystic-bg font-bold px-8 py-3.5 rounded-full text-sm md:text-base shadow-xl flex items-center justify-center gap-2">
+                <i class="fa-solid fa-gamepad"></i> 開始遊玩遊戲
+            </a>
+            <a href="#timeline" class="px-8 py-3.5 rounded-full bg-mystic-card border border-gold-500/40 text-gold-300 hover:text-white font-bold text-sm md:text-base hover:bg-purple-900/40 transition flex items-center justify-center gap-2">
+                <i class="fa-solid fa-scroll"></i> 查看開發歷程
+            </a>
+        </div>
+    </section>
+
+    <!-- DIRECT NATIVE INTEGRATED GAME SECTION -->
+    <section id="game-section" class="relative z-10 py-12 px-4 max-w-7xl mx-auto">
+        <div class="text-center mb-8 space-y-3">
+            <span class="text-gold-500 text-xs font-bold uppercase tracking-widest font-cinzel"><i class="fa-solid fa-gamepad mr-1"></i> PLAYABLE GAME ENGINE</span>
+            <h2 class="text-3xl md:text-5xl font-bold gold-glow-text">《神秘之星》線上體驗區</h2>
+            <p class="text-slate-300 text-xs md:text-sm">直接在展示頁面中體驗完整單張啟示、三牌陣運勢與星相個人化演算</p>
+        </div>
+
+        <!-- Integrated Native Game Component -->
+        <div class="gold-border-glow bg-mystic-card/90 rounded-3xl p-4 md:p-6 shadow-2xl relative overflow-hidden backdrop-blur-md">
+            
+            <!-- Game Sub-Navigation Tabs -->
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-gold-500/30 pb-4 mb-6">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-hat-wizard text-2xl text-gold-500 animate-pulse"></i>
+                    <span class="font-cinzel text-lg font-bold text-gold-300">TAROT RPG ENGINE</span>
+                </div>
+                <div class="flex items-center gap-2 bg-mystic-bg/90 p-1 rounded-xl border border-purple-800/50">
+                    <button id="btnNavDaily" onclick="switchGameMode('daily')" class="px-3 py-1.5 rounded-lg text-xs md:text-sm font-semibold transition-all duration-300 bg-purple-700 text-white shadow-lg shadow-purple-900/50">
+                        <i class="fa-solid fa-sun mr-1 text-gold-300"></i> 單張啟示
+                    </button>
+                    <button id="btnNavSpread" onclick="switchGameMode('spread')" class="px-3 py-1.5 rounded-lg text-xs md:text-sm font-semibold transition-all duration-300 text-purple-300 hover:text-white hover:bg-purple-900/40">
+                        <i class="fa-solid fa-ring mr-1 text-gold-300"></i> 三牌陣冒險
+                    </button>
+                    <button id="btnNavGallery" onclick="switchGameMode('gallery')" class="px-3 py-1.5 rounded-lg text-xs md:text-sm font-semibold transition-all duration-300 text-purple-300 hover:text-white hover:bg-purple-900/40">
+                        <i class="fa-solid fa-book-bookmark mr-1 text-gold-300"></i> 22牌圖鑑
+                    </button>
+                </div>
+            </div>
+
+            <!-- Birth & Astrology Calculation Bar -->
+            <div class="mb-8 bg-purple-950/40 p-4 rounded-2xl border border-purple-800/50">
+                <div class="flex flex-col lg:flex-row items-center justify-between gap-4">
+                    <div class="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
+                        <div class="flex items-center gap-2 text-gold-300 font-semibold text-xs whitespace-nowrap">
+                            <i class="fa-solid fa-cake-candles text-base"></i>
+                            <span>您的出生日期：</span>
+                        </div>
+                        <input type="date" id="birthInput" class="w-full sm:w-auto bg-mystic-bg border border-gold-500/50 text-gold-100 rounded-xl px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-gold-300 cursor-pointer shadow-inner">
+                        <button onclick="calculateAstrology()" class="w-full sm:w-auto bg-gradient-to-r from-gold-700 to-gold-500 hover:from-gold-500 hover:to-gold-300 text-mystic-bg font-bold px-4 py-1.5 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 shadow-md">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> 靈魂共鳴分析
+                        </button>
+                    </div>
+
+                    <div id="astroBanner" class="w-full lg:w-auto flex-grow grid grid-cols-2 sm:grid-cols-4 gap-2 border-t lg:border-t-0 lg:border-l border-purple-800/60 pt-3 lg:pt-0 lg:pl-4 text-center">
+                        <div class="bg-mystic-bg/60 p-2 rounded-xl border border-purple-800/30">
+                            <span class="text-[10px] text-purple-300 block">太陽星座</span>
+                            <span id="resSign" class="font-bold text-gold-300 text-xs">--</span>
+                        </div>
+                        <div class="bg-mystic-bg/60 p-2 rounded-xl border border-purple-800/30">
+                            <span class="text-[10px] text-purple-300 block">星象元素</span>
+                            <span id="resElement" class="font-bold text-purple-200 text-xs">--</span>
+                        </div>
+                        <div class="bg-mystic-bg/60 p-2 rounded-xl border border-purple-800/30">
+                            <span class="text-[10px] text-purple-300 block">生命靈數</span>
+                            <span id="resLifeNum" class="font-bold text-gold-300 text-xs">--</span>
+                        </div>
+                        <div class="bg-mystic-bg/60 p-2 rounded-xl border border-purple-800/30">
+                            <span class="text-[10px] text-purple-300 block">專屬本命牌</span>
+                            <span id="resBirthCard" class="font-bold text-amber-300 text-xs truncate block">--</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View 1: Daily Card Guidance Mode -->
+            <div id="viewDaily" class="block space-y-6">
+                <div class="text-center space-y-1">
+                    <h3 class="text-xl md:text-2xl font-bold font-cinzel gold-glow-text">每日單張命運啟示</h3>
+                    <p class="text-purple-300 text-xs">沉澱心靈，默想你今日的疑問，點擊塔羅牌揭示命運之語。</p>
+                </div>
+
+                <div class="flex flex-col items-center justify-center min-h-[380px] my-4">
+                    <div class="w-56 h-80 tarot-card-container">
+                        <div id="dailyCard" onclick="handleDailyFlip()" class="tarot-card">
+                            <div class="card-back flex items-center justify-center p-3">
+                                <div class="w-full h-full border border-gold-500/40 rounded-lg flex flex-col items-center justify-center bg-purple-950/40 relative overflow-hidden">
+                                    <i class="fa-solid fa-sparkles text-3xl text-gold-500/80 mb-2 animate-spin-slow"></i>
+                                    <span class="font-cinzel text-[10px] text-gold-300 tracking-widest uppercase">CLICK TO FLIP</span>
+                                </div>
+                            </div>
+                            <div class="card-front p-2 relative flex flex-col">
+                                <div class="holo-sheen"></div>
+                                <canvas id="dailyCardCanvas" width="220" height="280" class="w-full h-52 rounded-t-lg bg-black/50"></canvas>
+                                <div class="p-2 text-center flex-grow flex flex-col justify-center bg-mystic-card/90 rounded-b-lg">
+                                    <span id="dailyCardNum" class="text-[10px] font-cinzel text-gold-500 font-bold"></span>
+                                    <h4 id="dailyCardTitle" class="text-sm font-bold text-gold-100"></h4>
+                                    <span id="dailyCardKeywords" class="text-[10px] text-purple-300 mt-0.5"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button id="btnDailyReset" onclick="resetDaily()" class="mt-4 hidden bg-purple-900/60 hover:bg-purple-800 text-gold-300 border border-gold-500/40 px-5 py-1.5 rounded-xl text-xs transition-all flex items-center gap-2 shadow-lg">
+                        <i class="fa-solid fa-rotate-right"></i> 重新抽牌
+                    </button>
+                </div>
+
+                <div id="dailyStoryPanel" class="hidden max-w-2xl mx-auto bg-mystic-bg/80 rounded-2xl p-5 gold-border space-y-4">
+                    <div>
+                        <div class="flex items-center gap-2 mb-2">
+                            <span id="dailyTagElement" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-900/80 text-purple-200 border border-purple-500/30"></span>
+                            <h4 class="text-base font-bold text-gold-300">RPG 命運冒險情境</h4>
+                        </div>
+                        <p id="dailyStoryText" class="text-slate-200 text-xs md:text-sm leading-relaxed bg-mystic-card/60 p-3 rounded-xl border border-purple-900/50"></p>
+                    </div>
+
+                    <div class="space-y-2">
+                        <h5 class="text-[11px] font-bold uppercase tracking-wider text-purple-300">請作出您的抉擇：</h5>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <button onclick="makeChoice('A')" class="p-3 rounded-xl bg-purple-950/80 hover:bg-purple-900 border border-gold-500/30 hover:border-gold-500 text-left transition-all group">
+                                <span class="text-[10px] font-bold text-gold-500 block mb-0.5">抉擇 A</span>
+                                <span id="choiceAText" class="text-xs font-semibold text-slate-200 group-hover:text-white"></span>
+                            </button>
+                            <button onclick="makeChoice('B')" class="p-3 rounded-xl bg-purple-950/80 hover:bg-purple-900 border border-purple-500/30 hover:border-purple-400 text-left transition-all group">
+                                <span class="text-[10px] font-bold text-purple-400 block mb-0.5">抉擇 B</span>
+                                <span id="choiceBText" class="text-xs font-semibold text-slate-200 group-hover:text-white"></span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="choiceOutcomePanel" class="hidden p-3 rounded-xl bg-purple-900/40 border border-gold-500/40 space-y-2">
+                        <h5 id="outcomeTitle" class="text-sm font-bold text-gold-300"></h5>
+                        <p id="outcomeText" class="text-xs text-slate-300 leading-relaxed"></p>
+                        <div class="pt-2 border-t border-purple-800/40">
+                            <span class="text-[11px] text-gold-400 font-semibold"><i class="fa-solid fa-lightbulb mr-1"></i> 行動建議：</span>
+                            <p id="dailyAdviceText" class="text-xs text-slate-200 mt-1"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View 2: Three Card Spread Mode -->
+            <div id="viewSpread" class="hidden space-y-6">
+                <div class="text-center space-y-1">
+                    <h3 class="text-xl md:text-2xl font-bold font-cinzel gold-glow-text">三牌陣時間之流冒險</h3>
+                    <p class="text-purple-300 text-xs">揭示【過去】、【現在】與【未來】的連繫</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto my-4">
+                    <!-- Past -->
+                    <div class="flex flex-col items-center">
+                        <span class="text-xs font-bold font-cinzel text-gold-400 tracking-widest mb-1.5">I. 過去 (Past)</span>
+                        <div class="w-48 h-72 tarot-card-container">
+                            <div id="spreadCard0" onclick="handleSpreadFlip(0)" class="tarot-card">
+                                <div class="card-back flex items-center justify-center p-3">
+                                    <i class="fa-solid fa-hourglass-start text-2xl text-purple-400/80"></i>
+                                </div>
+                                <div class="card-front p-2 relative flex flex-col">
+                                    <div class="holo-sheen"></div>
+                                    <canvas id="spreadCanvas0" width="180" height="220" class="w-full h-44 rounded-t-lg bg-black/50"></canvas>
+                                    <div class="p-2 text-center flex-grow flex flex-col justify-center bg-mystic-card/90 rounded-b-lg">
+                                        <span id="spreadNum0" class="text-[9px] font-cinzel text-gold-500 font-bold"></span>
+                                        <h4 id="spreadTitle0" class="text-xs font-bold text-gold-100"></h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Present -->
+                    <div class="flex flex-col items-center">
+                        <span class="text-xs font-bold font-cinzel text-gold-400 tracking-widest mb-1.5">II. 現在 (Present)</span>
+                        <div class="w-48 h-72 tarot-card-container">
+                            <div id="spreadCard1" onclick="handleSpreadFlip(1)" class="tarot-card">
+                                <div class="card-back flex items-center justify-center p-3">
+                                    <i class="fa-solid fa-compass text-2xl text-purple-400/80"></i>
+                                </div>
+                                <div class="card-front p-2 relative flex flex-col">
+                                    <div class="holo-sheen"></div>
+                                    <canvas id="spreadCanvas1" width="180" height="220" class="w-full h-44 rounded-t-lg bg-black/50"></canvas>
+                                    <div class="p-2 text-center flex-grow flex flex-col justify-center bg-mystic-card/90 rounded-b-lg">
+                                        <span id="spreadNum1" class="text-[9px] font-cinzel text-gold-500 font-bold"></span>
+                                        <h4 id="spreadTitle1" class="text-xs font-bold text-gold-100"></h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Future -->
+                    <div class="flex flex-col items-center">
+                        <span class="text-xs font-bold font-cinzel text-gold-400 tracking-widest mb-1.5">III. 未來 (Future)</span>
+                        <div class="w-48 h-72 tarot-card-container">
+                            <div id="spreadCard2" onclick="handleSpreadFlip(2)" class="tarot-card">
+                                <div class="card-back flex items-center justify-center p-3">
+                                    <i class="fa-solid fa-eye text-2xl text-purple-400/80"></i>
+                                </div>
+                                <div class="card-front p-2 relative flex flex-col">
+                                    <div class="holo-sheen"></div>
+                                    <canvas id="spreadCanvas2" width="180" height="220" class="w-full h-44 rounded-t-lg bg-black/50"></canvas>
+                                    <div class="p-2 text-center flex-grow flex flex-col justify-center bg-mystic-card/90 rounded-b-lg">
+                                        <span id="spreadNum2" class="text-[9px] font-cinzel text-gold-500 font-bold"></span>
+                                        <h4 id="spreadTitle2" class="text-xs font-bold text-gold-100"></h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-center">
+                    <button id="btnSpreadReset" onclick="resetSpread()" class="bg-purple-900/60 hover:bg-purple-800 text-gold-300 border border-gold-500/40 px-5 py-1.5 rounded-xl text-xs transition-all flex items-center gap-2 shadow-lg">
+                        <i class="fa-solid fa-arrows-rotate"></i> 重新佈置牌陣
+                    </button>
+                </div>
+
+                <div id="spreadAnalysisPanel" class="hidden max-w-3xl mx-auto bg-mystic-bg/80 rounded-2xl p-5 gold-border space-y-4">
+                    <div class="border-b border-purple-800/60 pb-3 flex flex-col md:flex-row items-start md:items-center justify-between gap-2">
+                        <div>
+                            <h4 class="text-lg font-bold text-gold-300 font-cinzel">三牌陣命運綜述</h4>
+                            <p class="text-[11px] text-purple-300">結合您的星座元素深度解析</p>
+                        </div>
+                        <div id="elementResonanceBadge" class="bg-purple-900/80 border border-gold-500/40 px-3 py-1 rounded-xl text-xs font-bold text-gold-300"></div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                        <div class="bg-mystic-card/70 p-3 rounded-xl border border-purple-900/50">
+                            <span class="text-gold-400 font-bold block mb-1">【過去】的沉澱</span>
+                            <p id="spreadRead0" class="text-slate-300 leading-relaxed"></p>
+                        </div>
+                        <div class="bg-mystic-card/70 p-3 rounded-xl border border-purple-900/50">
+                            <span class="text-gold-400 font-bold block mb-1">【現在】的考驗</span>
+                            <p id="spreadRead1" class="text-slate-300 leading-relaxed"></p>
+                        </div>
+                        <div class="bg-mystic-card/70 p-3 rounded-xl border border-purple-900/50">
+                            <span class="text-gold-400 font-bold block mb-1">【未來】的指引</span>
+                            <p id="spreadRead2" class="text-slate-300 leading-relaxed"></p>
+                        </div>
+                    </div>
+
+                    <div class="bg-purple-950/60 p-3 rounded-xl border border-gold-500/30">
+                        <h5 class="text-xs font-bold text-gold-300 mb-1"><i class="fa-solid fa-crystal-ball text-gold-400 mr-1.5"></i> 元素共鳴與總體建議：</h5>
+                        <p id="spreadElementAdvice" class="text-xs text-slate-200 leading-relaxed"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View 3: 22 Card Art Gallery -->
+            <div id="viewGallery" class="hidden space-y-4">
+                <div class="text-center space-y-1">
+                    <h3 class="text-xl md:text-2xl font-bold font-cinzel gold-glow-text">22 大阿爾克那全牌圖鑑</h3>
+                    <p class="text-purple-300 text-xs">點擊任意卡牌觀賞手繪藝術與牌義解讀</p>
+                </div>
+
+                <div id="galleryGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 max-w-5xl mx-auto">
+                    <!-- Dynamic rendering -->
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- 2. DEVELOPMENT TIMELINE SECTION -->
+    <section id="timeline" class="relative z-10 py-20 px-4 max-w-6xl mx-auto">
+        <div class="text-center mb-16 space-y-3">
+            <span class="text-gold-500 text-xs font-bold uppercase tracking-widest font-cinzel"><i class="fa-solid fa-timeline mr-1"></i> DEVELOPMENT EVOLUTION</span>
+            <h2 class="text-3xl md:text-4xl font-bold gold-glow-text">開發演進歷程</h2>
+            <p class="text-slate-400 text-xs md:text-sm">從純程式碼核心演進至高解析展演級華麗視覺的完整里程碑</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Step 1 -->
+            <div class="gold-border-glow bg-mystic-card rounded-2xl p-6 relative group flex flex-col justify-between">
+                <div class="text-gold-500/20 font-cinzel text-5xl font-black absolute top-4 right-4">01</div>
+                <div>
+                    <div class="w-14 h-14 rounded-2xl bg-purple-900/50 border border-gold-500/40 flex items-center justify-center text-gold-300 text-2xl mb-6 group-hover:scale-110 transition duration-300">
+                        <i class="fa-solid fa-code"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-gold-100 mb-2">HTML5 核心引擎</h3>
+                    <p class="text-slate-300 text-xs leading-relaxed">搭建動態單頁響應式架構，完美支援卡牌翻轉、音效與 3D 視差傾斜。</p>
+                </div>
+                <div class="mt-6 pt-4 border-t border-gold-500/20 text-[11px] text-purple-300 font-semibold flex items-center justify-between">
+                    <span>第一階段</span>
+                    <i class="fa-solid fa-check text-gold-500"></i>
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="gold-border-glow bg-mystic-card rounded-2xl p-6 relative group flex flex-col justify-between">
+                <div class="text-gold-500/20 font-cinzel text-5xl font-black absolute top-4 right-4">02</div>
+                <div>
+                    <div class="w-14 h-14 rounded-2xl bg-purple-900/50 border border-gold-500/40 flex items-center justify-center text-gold-300 text-2xl mb-6 group-hover:scale-110 transition duration-300">
+                        <i class="fa-solid fa-cake-candles"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-gold-100 mb-2">個人化星盤演算</h3>
+                    <p class="text-slate-300 text-xs leading-relaxed">輸入生日即時計算太陽星座、四大元素（火土風水）與生命靈數本命牌。</p>
+                </div>
+                <div class="mt-6 pt-4 border-t border-gold-500/20 text-[11px] text-purple-300 font-semibold flex items-center justify-between">
+                    <span>第二階段</span>
+                    <i class="fa-solid fa-check text-gold-500"></i>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="gold-border-glow bg-mystic-card rounded-2xl p-6 relative group flex flex-col justify-between">
+                <div class="text-gold-500/20 font-cinzel text-5xl font-black absolute top-4 right-4">03</div>
+                <div>
+                    <div class="w-14 h-14 rounded-2xl bg-purple-900/50 border border-gold-500/40 flex items-center justify-center text-gold-300 text-2xl mb-6 group-hover:scale-110 transition duration-300">
+                        <i class="fa-solid fa-palette"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-gold-100 mb-2">22 大阿爾克那繪圖</h3>
+                    <p class="text-slate-300 text-xs leading-relaxed">全手繪 Canvas 向量神秘圖騰，搭配兩段式分歧 RPG 抉擇故事。</p>
+                </div>
+                <div class="mt-6 pt-4 border-t border-gold-500/20 text-[11px] text-purple-300 font-semibold flex items-center justify-between">
+                    <span>第三階段</span>
+                    <i class="fa-solid fa-check text-gold-500"></i>
+                </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="gold-border-glow bg-mystic-card rounded-2xl p-6 relative group flex flex-col justify-between">
+                <div class="text-gold-500/20 font-cinzel text-5xl font-black absolute top-4 right-4">04</div>
+                <div>
+                    <div class="w-14 h-14 rounded-2xl bg-purple-900/50 border border-gold-500/40 flex items-center justify-center text-gold-300 text-2xl mb-6 group-hover:scale-110 transition duration-300">
+                        <i class="fa-solid fa-crown"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-gold-100 mb-2">奢華展演級視覺</h3>
+                    <p class="text-slate-300 text-xs leading-relaxed">極致暗黑歐式金箔邊框、皇家幾何星盤動畫與全息閃耀光斑。</p>
+                </div>
+                <div class="mt-6 pt-4 border-t border-gold-500/20 text-[11px] text-purple-300 font-semibold flex items-center justify-between">
+                    <span>最終成形</span>
+                    <i class="fa-solid fa-sparkles text-gold-500"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. KEY PLATFORM FEATURES SECTION -->
+    <section id="features" class="relative z-10 py-20 px-4 max-w-6xl mx-auto">
+        <div class="text-center mb-16 space-y-3">
+            <span class="text-gold-500 text-xs font-bold uppercase tracking-widest font-cinzel"><i class="fa-solid fa-star mr-1"></i> CORE ARCHITECTURE</span>
+            <h2 class="text-3xl md:text-4xl font-bold gold-glow-text">遊戲平台四大核心</h2>
+            <p class="text-slate-400 text-xs md:text-sm">融合傳統塔羅哲思與現代互動網頁技術的極致體驗</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Feature 1 -->
+            <div class="gold-border-glow bg-mystic-card rounded-2xl p-8 flex items-start gap-6 group hover:bg-purple-950/40 transition duration-300">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-gold-500 to-gold-700 flex items-center justify-center text-mystic-bg text-3xl font-bold flex-shrink-0 shadow-lg group-hover:scale-110 transition">
+                    <i class="fa-solid fa-clone"></i>
+                </div>
+                <div class="space-y-2">
+                    <h3 class="text-xl font-bold text-gold-100">22 張大阿爾克那全牌組</h3>
+                    <p class="text-slate-300 text-xs md:text-sm leading-relaxed">由【0.愚者】至【21.世界】包含完整向量繪圖、元素標籤、關鍵字與分歧式 RPG 命運抉擇。</p>
+                </div>
+            </div>
+
+            <!-- Feature 2 -->
+            <div class="gold-border-glow bg-mystic-card rounded-2xl p-8 flex items-start gap-6 group hover:bg-purple-950/40 transition duration-300">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-gold-500 to-gold-700 flex items-center justify-center text-mystic-bg text-3xl font-bold flex-shrink-0 shadow-lg group-hover:scale-110 transition">
+                    <i class="fa-solid fa-compass-drafting"></i>
+                </div>
+                <div class="space-y-2">
+                    <h3 class="text-xl font-bold text-gold-100">星相命運共鳴系統</h3>
+                    <p class="text-slate-300 text-xs md:text-sm leading-relaxed">輸入出生日期即可解析太陽星座，並在抽牌時自動檢查「同元素共鳴加成」給予專屬提醒。</p>
+                </div>
+            </div>
+
+            <!-- Feature 3 -->
+            <div class="gold-border-glow bg-mystic-card rounded-2xl p-8 flex items-start gap-6 group hover:bg-purple-950/40 transition duration-300">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-gold-500 to-gold-700 flex items-center justify-center text-mystic-bg text-3xl font-bold flex-shrink-0 shadow-lg group-hover:scale-110 transition">
+                    <i class="fa-solid fa-cubes"></i>
+                </div>
+                <div class="space-y-2">
+                    <h3 class="text-xl font-bold text-gold-100">雙重探索占卜模式</h3>
+                    <p class="text-slate-300 text-xs md:text-sm leading-relaxed">支援「每日單張啟示」深度導讀與「過去/現在/未來」三牌陣全方位時間之流占卜。</p>
+                </div>
+            </div>
+
+            <!-- Feature 4 -->
+            <div class="gold-border-glow bg-mystic-card rounded-2xl p-8 flex items-start gap-6 group hover:bg-purple-950/40 transition duration-300">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-gold-500 to-gold-700 flex items-center justify-center text-mystic-bg text-3xl font-bold flex-shrink-0 shadow-lg group-hover:scale-110 transition">
+                    <i class="fa-solid fa-book-bookmark"></i>
+                </div>
+                <div class="space-y-2">
+                    <h3 class="text-xl font-bold text-gold-100">高解析藝廊展示系統</h3>
+                    <p class="text-slate-300 text-xs md:text-sm leading-relaxed">內建專屬「22牌全圖鑑」模組，一鍵瀏覽手繪向量藝術圖騰與故事細節。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. VISUAL SHOWCASE & GALLERY SECTION -->
+    <section id="gallery" class="relative z-10 py-20 px-4 max-w-6xl mx-auto">
+        <div class="text-center mb-16 space-y-3">
+            <span class="text-gold-500 text-xs font-bold uppercase tracking-widest font-cinzel"><i class="fa-solid fa-eye mr-1"></i> VISUAL DISPLAY</span>
+            <h2 class="text-3xl md:text-4xl font-bold gold-glow-text">視覺展演畫廊</h2>
+            <p class="text-slate-400 text-xs md:text-sm">點擊體驗卡牌互動繪圖展示與命運試煉</p>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            <!-- Sample Interactive Showcase Cards -->
+            <div onclick="showDetailModal('0')" class="gold-border-glow bg-mystic-card p-4 rounded-xl text-center cursor-pointer group hover:scale-105 transition duration-300">
+                <div class="w-full h-40 mb-3 bg-black/60 rounded-lg flex items-center justify-center overflow-hidden border border-gold-500/20">
+                    <i class="fa-solid fa-sun text-4xl text-gold-500 group-hover:scale-125 transition duration-300"></i>
+                </div>
+                <span class="text-[10px] font-cinzel text-gold-500 font-bold block">ARCANA 0</span>
+                <h4 class="text-sm font-bold text-gold-100">愚者 (The Fool)</h4>
+            </div>
+
+            <div onclick="showDetailModal('1')" class="gold-border-glow bg-mystic-card p-4 rounded-xl text-center cursor-pointer group hover:scale-105 transition duration-300">
+                <div class="w-full h-40 mb-3 bg-black/60 rounded-lg flex items-center justify-center overflow-hidden border border-gold-500/20">
+                    <i class="fa-solid fa-wand-magic text-4xl text-purple-400 group-hover:scale-125 transition duration-300"></i>
+                </div>
+                <span class="text-[10px] font-cinzel text-gold-500 font-bold block">ARCANA I</span>
+                <h4 class="text-sm font-bold text-gold-100">魔術師 (The Magician)</h4>
+            </div>
+
+            <div onclick="showDetailModal('2')" class="gold-border-glow bg-mystic-card p-4 rounded-xl text-center cursor-pointer group hover:scale-105 transition duration-300">
+                <div class="w-full h-40 mb-3 bg-black/60 rounded-lg flex items-center justify-center overflow-hidden border border-gold-500/20">
+                    <i class="fa-solid fa-moon text-4xl text-cyan-400 group-hover:scale-125 transition duration-300"></i>
+                </div>
+                <span class="text-[10px] font-cinzel text-gold-500 font-bold block">ARCANA II</span>
+                <h4 class="text-sm font-bold text-gold-100">女祭司 (High Priestess)</h4>
+            </div>
+
+            <div onclick="showDetailModal('10')" class="gold-border-glow bg-mystic-card p-4 rounded-xl text-center cursor-pointer group hover:scale-105 transition duration-300">
+                <div class="w-full h-40 mb-3 bg-black/60 rounded-lg flex items-center justify-center overflow-hidden border border-gold-500/20">
+                    <i class="fa-solid fa-dharmachakra text-4xl text-amber-400 group-hover:scale-125 transition duration-300"></i>
+                </div>
+                <span class="text-[10px] font-cinzel text-gold-500 font-bold block">ARCANA X</span>
+                <h4 class="text-sm font-bold text-gold-100">命運之輪 (Wheel)</h4>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal for Showcase -->
+    <div id="showcaseModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+        <div class="bg-mystic-card gold-border-glow max-w-md w-full rounded-2xl p-6 relative">
+            <button onclick="closeDetailModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="text-center space-y-4">
+                <div id="modalIconBox" class="w-20 h-20 mx-auto rounded-full bg-purple-900/60 border border-gold-500 flex items-center justify-center text-3xl text-gold-300">
+                    <i class="fa-solid fa-sparkles"></i>
+                </div>
+                <h3 id="modalTitle" class="text-xl font-bold text-gold-100">卡牌展示</h3>
+                <p id="modalDesc" class="text-xs text-slate-300 leading-relaxed bg-black/40 p-4 rounded-xl border border-purple-900/40">
+                    包含手繪繪圖、對應星座屬性與 RPG 故事選項分支。
+                </p>
+                <button onclick="closeDetailModal()" class="gold-btn w-full py-2.5 rounded-xl font-bold text-mystic-bg text-sm">關閉展示</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. FOOTER CTA SECTION -->
+    <footer class="relative z-10 border-t border-gold-500/20 py-16 px-4 text-center bg-mystic-bg/90">
+        <div class="max-w-3xl mx-auto space-y-6">
+            <h2 class="text-3xl font-bold gold-glow-text">開啟屬於您的命運啟示</h2>
+            <p class="text-slate-400 text-xs md:text-sm">立即體驗完整「神秘之星 · ARCANA」奇幻塔羅 RPG 展演平台</p>
+            <div>
+                <a href="#game-section" class="gold-btn inline-flex items-center gap-2 text-mystic-bg font-bold px-10 py-4 rounded-full text-base shadow-2xl">
+                    <i class="fa-solid fa-play"></i> 進入 ARCANA 命運世界
+                </a>
+            </div>
+            <p class="text-[11px] text-slate-600 pt-8">&copy; 2026 ARCANA: Destiny of Stars • All Rights Reserved</p>
+        </div>
+    </footer>
+
+    <script>
+        // Particle Background Logic
+        const canvas = document.getElementById('starCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor() { this.reset(); }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 0.5;
+                this.speedY = Math.random() * 0.2 + 0.05;
+                this.alpha = Math.random() * 0.7 + 0.2;
+            }
+            update() {
+                this.y -= this.speedY;
+                if (this.y < 0) this.reset();
+            }
+            draw() {
+                ctx.fillStyle = `rgba(212, 175, 55, ${this.alpha})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < 60; i++) particles.push(new Particle());
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        /* ==========================================================================
+           INTEGRATED GAME ENGINE JAVASCRIPT
+           ========================================================================== */
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new AudioCtx();
+            }
+        }
+
+        function playSound(type) {
+            try {
+                initAudio();
+                if (!audioCtx) return;
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+
+                if (type === 'flip') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(300, now);
+                    osc.frequency.exponentialRampToValueAtTime(800, now + 0.15);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                    osc.start(now);
+                    osc.stop(now + 0.15);
+                } else if (type === 'chime') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, now);
+                    osc.frequency.exponentialRampToValueAtTime(1046.50, now + 0.4);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+                    osc.start(now);
+                    osc.stop(now + 0.5);
+                } else if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(1200, now);
+                    gain.gain.setValueAtTime(0.1, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+                    osc.start(now);
+                    osc.stop(now + 0.05);
+                }
+            } catch(e) {}
+        }
+
+        const TAROT_DATA = [
+            { id: 0, name: "愚者", en: "The Fool", element: "風", keywords: "新的開始、冒險、純真、自由", meaning: "象徵踏入未知的勇氣與無限可能，不受傳統束縛，大膽跨出第一步。", story: "站在絕壁邊緣的冒險者，帶著簡單的行囊與忠誠的小狗，凝視著未知的雲海。", choiceA: "毫不猶豫跳入未知的秘境氣流", choiceB: "審慎觀察四周，尋找穩健的下山步道", outcomeA: "你發現了隱藏的風之翼，成功飛躍懸崖並獲得了珍貴的秘寶！", outcomeB: "雖然避開了風險，但也錯過了奇幻氣流帶來的意外驚喜。", advice: "保持開放的心態，勇敢嘗試你一直在猶豫的新事。" },
+            { id: 1, name: "魔術師", en: "The Magician", element: "水/風", keywords: "創造力、技能、專注、掌控", meaning: "掌握了四大元素與萬物法則，擁有將想法轉化為現實的強大能力。", story: "高舉權杖的鍊金術師，桌上擺放著聖杯、寶劍、星體與符文，展現無中生有的神奇法術。", choiceA: "導引四大元素，發動強大的符文法陣", choiceB: "仔細研究研磨配方，調製穩定的精神藥劑", outcomeA: "強大的法術震撼了全場，揭開了封印已久的古代知識！", outcomeB: "調製出極高品質的精神藥水，穩健地提振了冒險團隊的狀態。", advice: "善用你現有的資源與才華，主動創造屬於你的機會。" },
+            { id: 2, name: "女祭司", en: "The High Priestess", element: "水", keywords: "直覺、潛意識、智慧、神祕", meaning: "代表內在的沉靜與高超的直覺，揭示隱藏在表面之下的深層真理。", story: "坐在黑白雙柱之間的月之神官，手中握著神秘的智慧卷軸，眼神透澈而深邃。", choiceA: "靜心冥想，傾聽內心深處的直覺聲音", choiceB: "查閱古老圖書館，尋找客觀的歷史記載", outcomeA: "你的直覺引導你解開了謎題的關鍵鎖扣，省去了漫長摸索。", outcomeB: "書本給予你紮實的論據，雖然耗時但無懈可擊。", advice: "信任你第一時間的直覺，許多答案早已潛藏在你的內心。" },
+            { id: 3, name: "皇后", en: "The Empress", element: "土", keywords: "豐饒、滋養、藝術、自然", meaning: "象徵母性、創造力與豐富的物質與精神收穫，萬物繁榮滋長。", story: "身穿金絲長袍的森林女王，坐在結滿果實的王座上，沐浴在溫暖的陽光中。", choiceA: "分享豐盛的果實與資源給路過的旅人", choiceB: "將資源儲存於城堡地下室以備不時之需", outcomeA: "旅人感激涕零，贈予你傳說中的精靈祝福徽章！", outcomeB: "豐富的儲備讓你在即將到來的寒冬中倍感安心。", advice: "學會傾注愛與關懷，對身邊的人事物展現慷慨與包容。" },
+            { id: 4, name: "皇帝", en: "The Emperor", element: "火", keywords: "權威、秩序、領導、穩定", meaning: "代表堅定不移的領導力、架構與紀律，建立起不可動搖的基石。", story: "端坐在石雕雄獅王座上的鐵血國王，手中握著權杖，眼神充滿冷靜與威嚴。", choiceA: "頒布嚴格的法令，重整軍隊秩序", choiceB: "召開圓桌會議，聽取各方領主的建議", outcomeA: "部隊迅速恢復紀律，成功抵禦了外敵的猛烈襲擊。", outcomeB: "建立了堅固的同盟體系，獲得了廣泛的擁戴。", advice: "展現你的領導與組織能力，建立清晰的規則與界線。" },
+            { id: 5, name: "教皇", en: "The Hierophant", element: "土", keywords: "傳承、信仰、導師、精神引導", meaning: "象徵傳統智慧、道德規範與精神上的導師，遵循正統的道路。", story: "大聖堂中的聖導師，向兩位虔誠的追隨者傳授古老的聖典與哲學思想。", choiceA: "遵循古老的儀式規範，向導師求教", choiceB: "大膽挑戰傳統觀念，尋求獨特革新", outcomeA: "你獲得了傳統智慧的庇護，避開了許多前人踩過的坑。", outcomeB: "打破了舊有思維框架，開創了嶄新的哲學流派。", advice: "向有經驗的前輩虛心求教，同時保持對正統價值的尊重。" },
+            { id: 6, name: "戀人", en: "The Lovers", element: "風", keywords: "選擇、愛、和諧、夥伴關係", meaning: "代表深刻的心靈連結與重大的人生選擇，追求和諧與真摯。", story: "在生命之樹下牽手的兩位冒險者，頭頂上有天使賜予光輝與祝福。", choiceA: "選擇與夥伴並肩作戰，共享榮辱", choiceB: "選擇獨自承擔艱難任務，保護夥伴安全", outcomeA: "你們的羈絆化為強大的防護罩，輕鬆化解了危機！", outcomeB: "雖然獨自承受了辛苦，但夥伴對你的無私敬佩不已。", advice: "面臨選擇時，跟隨真心的感受，選擇建立深層連結的道路。" },
+            { id: 7, name: "戰車", en: "The Charioteer", element: "水", keywords: "意志力、勝利、征服、自律", meaning: "靠著強大的意志力駕馭兩種對立的力量，一往無前邁向勝利。", story: "駕馭黑白雙獅身人面獸的戰士，手握光芒寶劍，在戰場上馳騁。", choiceA: "集中全部意志力，強行突破敵人防線", choiceB: "暫時收緊韁繩，調整陣型等待最佳時機", outcomeA: "你的猛烈衝鋒一舉擊潰了敵方中樞，奪得大勝！", outcomeB: "沉著的控制避免了陷阱，以極低的代價贏得了戰局。", advice: "保持堅強的意志與自律，克服內外的干擾與衝突。" },
+            { id: 8, name: "力量", en: "Strength", element: "火", keywords: "勇氣、包容、溫柔的控制、耐心", meaning: "非凡的內在勇氣與溫柔的力量，能夠安撫最猛烈的野獸。", story: "身穿白袍的女子以溫柔的手撫摸著雄獅的頭，雄獅馴服地依偎在她腳邊。", choiceA: "用溫柔與耐心傾聽野獸的咆哮，進行心靈感應", choiceB: "展現威嚴與魔法封印，強行制服野獸", outcomeA: "野獸被你的慈悲感動，化為你最忠誠的守護獸！", outcomeB: "成功封印了野獸，展示了無可匹敵的魔力力量。", advice: "以柔克剛，用耐心與溫柔處理棘手的人際或情緒問題。" },
+            { id: 9, name: "隱士", en: "The Hermit", element: "土", keywords: "尋道、內省、孤獨、明燈", meaning: "暫時退隱喧囂，向內探索尋求真理，為他人點亮前行的明燈。", story: "身披斗篷的老者手提提燈，獨自站在雪山之巔，尋找智慧的光芒。", choiceA: "獨自踏上雪山，進行深刻的自我對話", choiceB: "將提燈交給年輕的旅人，為他們指引方向", outcomeA: "在孤獨的靜謐中，你終於領悟了困擾已久的人生真諦。", outcomeB: "你的指引讓迷路的旅人重獲新生，播下了善的種子。", advice: "給自己留一段安靜的時間，遠離外界噪音，傾聽內心。" },
+            { id: 10, name: "命運之輪", en: "Wheel of Fortune", element: "火", keywords: "轉折、契機、循環、順應天命", meaning: "世界的輪轉不息，好運與挑戰交替出現，把握轉瞬即逝的良機。", story: "巨大的金屬符文輪盤在空中旋轉，周圍環繞著象徵四象的聖獸。", choiceA: "順應輪盤的轉動，果斷抓住降臨的機遇", choiceB: "保持觀察，等待輪盤停在最有利的位置", outcomeA: "你順利搭上了命運的上升氣流，事業獲致突破！", outcomeB: "穩健的等待讓你躲過了暫時的波動，鎖定了長期勝局。", advice: "順應變化，抱持開放的心態接受生命中的轉折。" },
+            { id: 11, name: "正義", en: "Justice", element: "風", keywords: "公平、真理、因果、明智決策", meaning: "手持天平與寶劍，代表客觀評估、因果回報與公正無私的決定。", story: "正義女神端坐於石柱間，左手持公平天平，右手高舉真理寶劍。", choiceA: "依據嚴格的客觀事實作出無私裁決", choiceB: "融入人情與背景考量，給予寬恕機會", outcomeA: "你的公正贏得了眾人的敬佩，建立起極高的威信。", outcomeB: "你的寬容化解了宿怨，促成了久違的和解。", advice: "保持客觀與理智，對自己的決定與行為承擔責任。" },
+            { id: 12, name: "倒吊人", en: "The Hanged Man", element: "水", keywords: "換位思考、奉獻、等待、新視角", meaning: "倒懸於生命之樹上，甘願暫時停滯，換個角度看待整個世界。", story: "修行者雙腳倒掛在樹枝上，頭頂環繞著光環，面容平靜而安詳。", choiceA: "接受現狀的停滯，利用這段時間換位思考", choiceB: "嘗試掙脫繩索，尋求立即的突破手段", outcomeA: "翻轉的角度讓你發現了隱藏在陰影中的寶箱鎖匙！", outcomeB: "強行掙脫消耗了體力，但展現了強大的反抗意志。", advice: "暫時放下執念，換個角度思考，停滯也是一種積蓄力量。" },
+            { id: 13, name: "死神", en: "Death", element: "水", keywords: "結束、重生、轉化、淘汰舊事物", meaning: "舊階段的終結與全新階段的開始，唯有放下過去才能迎來新生。", story: "身穿黑甲的騎士騎著白馬，地上的枯樹旁正冒出嫩綠的新芽。", choiceA: "勇敢告別過去的包袱，擁抱未知的全新篇章", choiceB: "細心清理舊物的殘骸，保留珍貴的記憶碎片", outcomeA: "卸下重擔後，你感受到前所未有的輕鬆與自由！", outcomeB: "珍貴的回憶成為你新旅程中最堅實的心靈後盾。", advice: "勇於放手不再適合你的舊習慣或環境，迎向新生。" },
+            { id: 14, name: "節制", en: "Temperance", element: "火/水", keywords: "平衡、融合、調和、適度", meaning: "將兩種相異的元素完美融合，尋求極致的內在平衡與和諧。", story: "大天使將聖杯中的金色液體與藍色水流互相傾倒，調和出璀璨的光芒。", choiceA: "調和極端的兩種意見，尋求最佳折衷方案", choiceB: "堅持原有的純粹性，不作任何妥協", outcomeA: "你成功凝聚了團隊共識，創造出兼具兩者優點的傑作！", outcomeB: "保持了最純正的風味，吸引了特定領域的忠實支持者。", advice: "保持適度與平衡，避免走入極端，尋求內心的寧靜。" },
+            { id: 15, name: "惡魔", en: "The Devil", element: "土", keywords: "慾望、束縛、物質誘惑、覺察", meaning: "揭示物質慾望與執念的束縛，提醒我們重獲心靈自由的主導權。", story: "黑魔法師坐在石台之上，腳下鎖著兩位並未真正被鎖緊的追隨者。", choiceA: "認清虛幻的枷鎖，果斷解開繩索恢復自由", choiceB: "暫時利用物質的力量，達成眼前的階段目標", outcomeA: "你打破了心靈的藩籬，獲得了無拘無束的精神自由！", outcomeB: "借力使力順利解除了眼前的危機，但需警惕過度依賴。", advice: "檢視自己是否被不良習慣或過度慾望所捆綁，主動尋求掙脫。" },
+            { id: 16, name: "高塔", en: "The Tower", element: "火", keywords: "突變、打破幻想、啟示、重建", meaning: "閃電擊中高傲的高塔，毀滅舊有的虛幻結構，帶來徹底的清醒與重建。", story: "高聳入雲的石塔被閃電擊中，冠冕掉落，然而天空漸漸露出了清晨的光芒。", choiceA: "擁抱突如其來的改變，在廢墟上重新建造基石", choiceB: "緊急搶救重要的資產，減少變故帶來的損失", outcomeA: "全新的基石比以往更加堅固，再無坍塌之虞！", outcomeB: "保住了核心資產，為快速復原爭取了寶貴的時間。", advice: "不要害怕突發的變故，這是清除障礙、重建更真實自我的契機。" },
+            { id: 17, name: "星星", en: "The Star", element: "風", keywords: "希望、靈感、治癒、平靜", meaning: "黑夜過後高懸的希望之星，帶來心靈的滋養、靈感與和平預兆。", story: "少女在星空下將聖水傾倒於大地與泉水中，上方八角星閃耀著璀璨光芒。", choiceA: "許下美好的願望，並將靈感轉化為藝術創作", choiceB: "將滋養的水源分享給受傷的土地與動植物", outcomeA: "創作出了感動人心的作品，獲得了廣大的迴響！", outcomeB: "大地恢復了生機，為你帶來了無比的心靈平靜。", advice: "保持樂觀與希望，相信未來，給予自己與他人溫暖與治癒。" },
+            { id: 18, name: "月亮", en: "The Moon", element: "水", keywords: "潛意識、不安、幻象、直覺探索", meaning: "月光照射下的迷霧森林，象徵潛意識中的不安與幻影，需靠內在燈塔穿透。", story: "兩座高塔之間的月亮倒映在池塘中，龍蝦從水底爬出，狼與狗向月高歌。", choiceA: "勇敢穿過迷霧森林，直面潛意識的恐懼", choiceB: "在池塘邊駐足等待，直到黎明曙光驅散迷霧", outcomeA: "你穿透了幻象，發現恐懼背後隱藏著巨大的潛能！", outcomeB: "安然度過了危險的夜晚，在晨光中清晰地認清了前路。", advice: "接納自己的焦慮與不安，不被表面的幻象與謠言所惑。" },
+            { id: 19, name: "太陽", en: "The Sun", element: "火", keywords: "快樂、成功、活力、自信", meaning: "輝煌燦爛的陽光照耀萬物，帶來充沛的活力、成功與純真的快樂。", story: "孩童騎著白馬在向日葵花園中歡笑，頭頂上的太陽散發著溫暖強大的能量。", choiceA: "大方展示你的成果，與大家分享喜悅", choiceB: "帶著熱情投入下一階段的冒險計畫", outcomeA: "你的自信與熱情感染了身邊所有人，建立了極佳的名聲！", outcomeB: "充沛的精力讓你在新計畫中取得開門紅。", advice: "擁抱自信與熱情，享受當下的美好成果與快樂。" },
+            { id: 20, name: "審判", en: "Judgement", element: "火", keywords: "召喚、覺醒, 成果結算, 重生", meaning: "號角聲響起，迎來人生的重要轉折與覺醒，對過去做出總結並邁向新升華。", story: "天使在雲端吹響金色號角，人們從石棺中甦醒，高舉雙手回應召喚。", choiceA: "回應內心的召喚，邁向更高維度的人生目標", choiceB: "審視過去的經歷，總結經驗並修補遺憾", outcomeA: "你完成了靈魂的昇華，開啟了全新的人生篇章！", outcomeB: "圓滿解決了過去的未竟之事，心無罣礙地前行。", advice: "聆聽內心深處的召喚，做出明智的結算，勇敢邁向新人生。" },
+            { id: 21, name: "世界", en: "The World", element: "土", keywords: "圓滿、完成、統合、新循環", meaning: "大阿爾克那的終點與圓滿，象徵目標的達成、世界的統合與全新循環的開始。", story: "舞者在月桂花環中翩翩起舞，四角環繞著四象聖獸，展現極致的和諧。", choiceA: "慶祝當前的圓滿成功，準備踏上更高層次的旅程", choiceB: "將成功經驗整理成書，傳承給新一代的冒險者", outcomeA: "你在圓滿中獲得了昇華，迎接無可限量的新世界！", outcomeB: "你的智慧成為了傳奇，流傳在整個大陸之上。", advice: "好好慶祝已經完成的階段性目標，你做得非常出色！" }
+        ];
+
+        function drawCardArt(canvasId, cardId) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width;
+            const h = canvas.height;
+
+            ctx.clearRect(0, 0, w, h);
+
+            const bgGrad = ctx.createRadialGradient(w/2, h/2, 10, w/2, h/2, w);
+            bgGrad.addColorStop(0, '#1E1B4B');
+            bgGrad.addColorStop(1, '#090514');
+            ctx.fillStyle = bgGrad;
+            ctx.fillRect(0, 0, w, h);
+
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+            for(let i = 0; i < 20; i++) {
+                let x = (Math.sin(i * 99 + cardId) * 0.5 + 0.5) * w;
+                let y = (Math.cos(i * 33 + cardId) * 0.5 + 0.5) * h;
+                ctx.beginPath();
+                ctx.arc(x, y, (i % 2) + 1, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            ctx.save();
+            ctx.strokeStyle = '#D4AF37';
+            ctx.fillStyle = '#D4AF37';
+            ctx.lineWidth = 2;
+
+            const cx = w / 2;
+            const cy = h / 2 - 10;
+
+            switch(cardId % 8) {
+                case 0:
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, 30, 0, Math.PI * 2);
+                    ctx.stroke();
+                    for (let i = 0; i < 12; i++) {
+                        let ang = (i * Math.PI) / 6;
+                        ctx.beginPath();
+                        ctx.moveTo(cx + Math.cos(ang)*35, cy + Math.sin(ang)*35);
+                        ctx.lineTo(cx + Math.cos(ang)*48, cy + Math.sin(ang)*48);
+                        ctx.stroke();
+                    }
+                    break;
+                case 1:
+                    ctx.beginPath();
+                    ctx.ellipse(cx - 15, cy, 15, 10, 0, 0, Math.PI * 2);
+                    ctx.ellipse(cx + 15, cy, 15, 10, 0, 0, Math.PI * 2);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(cx - 30, cy + 25);
+                    ctx.lineTo(cx + 30, cy - 25);
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+                    break;
+                case 2:
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, 25, 0, Math.PI * 2);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.arc(cx - 12, cy, 25, -Math.PI/2, Math.PI/2, false);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.arc(cx + 12, cy, 25, Math.PI/2, -Math.PI/2, false);
+                    ctx.stroke();
+                    break;
+                default:
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, 30, 0, Math.PI * 2);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, 12, 0, Math.PI * 2);
+                    ctx.stroke();
+                    break;
+            }
+
+            ctx.strokeStyle = 'rgba(212, 175, 55, 0.4)';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(6, 6, w - 12, h - 12);
+            ctx.restore();
+        }
+
+        let userAstro = {
+            sign: "白羊座",
+            element: "火",
+            lifeNum: 7,
+            birthCard: TAROT_DATA[7]
+        };
+
+        function calculateAstrology() {
+            const inputVal = document.getElementById('birthInput').value;
+            if (!inputVal) return;
+
+            playSound('chime');
+            const date = new Date(inputVal);
+            const m = date.getMonth() + 1;
+            const d = date.getDate();
+
+            let sign = "";
+            let element = "";
+
+            if ((m == 3 && d >= 21) || (m == 4 && d <= 19)) { sign = "白羊座"; element = "火"; }
+            else if ((m == 4 && d >= 20) || (m == 5 && d <= 20)) { sign = "金牛座"; element = "土"; }
+            else if ((m == 5 && d >= 21) || (m == 6 && d <= 21)) { sign = "雙子座"; element = "風"; }
+            else if ((m == 6 && d >= 22) || (m == 7 && d <= 22)) { sign = "巨蟹座"; element = "水"; }
+            else if ((m == 7 && d >= 23) || (m == 8 && d <= 22)) { sign = "獅子座"; element = "火"; }
+            else if ((m == 8 && d >= 23) || (m == 9 && d <= 22)) { sign = "處女座"; element = "土"; }
+            else if ((m == 9 && d >= 23) || (m == 10 && d <= 23)) { sign = "天秤座"; element = "風"; }
+            else if ((m == 10 && d >= 24) || (m == 11 && d <= 22)) { sign = "天蠍座"; element = "水"; }
+            else if ((m == 11 && d >= 23) || (m == 12 && d <= 21)) { sign = "射手座"; element = "火"; }
+            else if ((m == 12 && d >= 22) || (m == 1 && d <= 19)) { sign = "摩羯座"; element = "土"; }
+            else if ((m == 1 && d >= 20) || (m == 2 && d <= 18)) { sign = "水瓶座"; element = "風"; }
+            else { sign = "雙魚座"; element = "水"; }
+
+            const strDigits = inputVal.replace(/-/g, '');
+            let sum = 0;
+            for (let char of strDigits) {
+                sum += parseInt(char);
+            }
+            while (sum > 21) {
+                let temp = 0;
+                String(sum).split('').forEach(digit => temp += parseInt(digit));
+                sum = temp;
+            }
+
+            const birthCard = TAROT_DATA[sum % 22];
+            userAstro = { sign, element, lifeNum: sum, birthCard };
+
+            document.getElementById('resSign').innerText = sign;
+            document.getElementById('resElement').innerText = element + "象元素";
+            document.getElementById('resLifeNum').innerText = "No. " + sum;
+            document.getElementById('resBirthCard').innerText = birthCard.name;
+        }
+
+        function switchGameMode(mode) {
+            playSound('click');
+            document.getElementById('viewDaily').classList.add('hidden');
+            document.getElementById('viewSpread').classList.add('hidden');
+            document.getElementById('viewGallery').classList.add('hidden');
+
+            document.getElementById('btnNavDaily').className = "px-3 py-1.5 rounded-lg text-xs md:text-sm font-semibold transition-all duration-300 text-purple-300 hover:text-white hover:bg-purple-900/40";
+            document.getElementById('btnNavSpread').className = "px-3 py-1.5 rounded-lg text-xs md:text-sm font-semibold transition-all duration-300 text-purple-300 hover:text-white hover:bg-purple-900/40";
+            document.getElementById('btnNavGallery').className = "px-3 py-1.5 rounded-lg text-xs md:text-sm font-semibold transition-all duration-300 text-purple-300 hover:text-white hover:bg-purple-900/40";
+
+            if (mode === 'daily') {
+                document.getElementById('viewDaily').classList.remove('hidden');
+                document.getElementById('btnNavDaily').className = "px-3 py-1.5 rounded-lg text-xs md:text-sm font-semibold transition-all duration-300 bg-purple-700 text-white shadow-lg shadow-purple-900/50";
+            } else if (mode === 'spread') {
+                document.getElementById('viewSpread').classList.remove('hidden');
+                document.getElementById('btnNavSpread').className = "px-3 py-1.5 rounded-lg text-xs md:text-sm font-semibold transition-all duration-300 bg-purple-700 text-white shadow-lg shadow-purple-900/50";
+            } else if (mode === 'gallery') {
+                document.getElementById('viewGallery').classList.remove('hidden');
+                document.getElementById('btnNavGallery').className = "px-3 py-1.5 rounded-lg text-xs md:text-sm font-semibold transition-all duration-300 bg-purple-700 text-white shadow-lg shadow-purple-900/50";
+                renderGameGallery();
+            }
+        }
+
+        let currentDailyCard = null;
+
+        function handleDailyFlip() {
+            const cardElem = document.getElementById('dailyCard');
+            if (cardElem.classList.contains('flipped')) return;
+
+            playSound('flip');
+            setTimeout(() => playSound('chime'), 300);
+
+            const randIdx = Math.floor(Math.random() * TAROT_DATA.length);
+            currentDailyCard = TAROT_DATA[randIdx];
+
+            drawCardArt('dailyCardCanvas', currentDailyCard.id);
+
+            document.getElementById('dailyCardNum').innerText = "ARCANA " + currentDailyCard.id;
+            document.getElementById('dailyCardTitle').innerText = currentDailyCard.name;
+            document.getElementById('dailyCardKeywords').innerText = currentDailyCard.keywords;
+
+            cardElem.classList.add('flipped');
+
+            setTimeout(() => {
+                document.getElementById('dailyStoryPanel').classList.remove('hidden');
+                document.getElementById('btnDailyReset').classList.remove('hidden');
+
+                document.getElementById('dailyTagElement').innerText = currentDailyCard.element + "屬性";
+                document.getElementById('dailyStoryText').innerText = currentDailyCard.story;
+                document.getElementById('choiceAText').innerText = currentDailyCard.choiceA;
+                document.getElementById('choiceBText').innerText = currentDailyCard.choiceB;
+
+                document.getElementById('choiceOutcomePanel').classList.add('hidden');
+            }, 600);
+        }
+
+        function makeChoice(choiceKey) {
+            playSound('chime');
+            const outcomePanel = document.getElementById('choiceOutcomePanel');
+            outcomePanel.classList.remove('hidden');
+
+            if (choiceKey === 'A') {
+                document.getElementById('outcomeTitle').innerText = "抉擇 A 成果：" + currentDailyCard.choiceA;
+                document.getElementById('outcomeText').innerText = currentDailyCard.outcomeA;
+            } else {
+                document.getElementById('outcomeTitle').innerText = "抉擇 B 成果：" + currentDailyCard.choiceB;
+                document.getElementById('outcomeText').innerText = currentDailyCard.outcomeB;
+            }
+
+            document.getElementById('dailyAdviceText').innerText = currentDailyCard.advice + "（結合您當前 " + userAstro.sign + " 的 " + userAstro.element + "象能量，今日試著放慢步調能獲得更佳共鳴。）";
+        }
+
+        function resetDaily() {
+            playSound('click');
+            const cardElem = document.getElementById('dailyCard');
+            cardElem.classList.remove('flipped');
+            document.getElementById('dailyStoryPanel').classList.add('hidden');
+            document.getElementById('btnDailyReset').classList.add('hidden');
+        }
+
+        let spreadFlipped = [false, false, false];
+        let spreadCards = [null, null, null];
+
+        function handleSpreadFlip(index) {
+            if (spreadFlipped[index]) return;
+
+            playSound('flip');
+            spreadFlipped[index] = true;
+
+            let randIdx;
+            do {
+                randIdx = Math.floor(Math.random() * TAROT_DATA.length);
+            } while (spreadCards.includes(TAROT_DATA[randIdx]));
+
+            spreadCards[index] = TAROT_DATA[randIdx];
+
+            drawCardArt('spreadCanvas' + index, spreadCards[index].id);
+
+            document.getElementById('spreadNum' + index).innerText = "NO. " + spreadCards[index].id;
+            document.getElementById('spreadTitle' + index).innerText = spreadCards[index].name;
+
+            document.getElementById('spreadCard' + index).classList.add('flipped');
+
+            if (spreadFlipped.every(v => v === true)) {
+                setTimeout(showSpreadAnalysis, 700);
+            }
+        }
+
+        function showSpreadAnalysis() {
+            playSound('chime');
+            document.getElementById('spreadAnalysisPanel').classList.remove('hidden');
+
+            document.getElementById('spreadRead0').innerText = spreadCards[0].name + "：" + spreadCards[0].meaning;
+            document.getElementById('spreadRead1').innerText = spreadCards[1].name + "：" + spreadCards[1].meaning;
+            document.getElementById('spreadRead2').innerText = spreadCards[2].name + "：" + spreadCards[2].meaning;
+
+            const hasSameElement = spreadCards.some(c => c.element.includes(userAstro.element));
+            const badge = document.getElementById('elementResonanceBadge');
+            const adviceElem = document.getElementById('spreadElementAdvice');
+
+            if (hasSameElement) {
+                badge.innerText = "✨ " + userAstro.element + "象元素強烈共鳴中";
+                adviceElem.innerText = "牌陣中出現與您的本命星座（" + userAstro.sign + "）高度契合的 " + userAstro.element + "象能量！這意味著您目前面臨的轉向正處於強烈的自我覺醒期。從過去的【" + spreadCards[0].name + "】過渡到現在的【" + spreadCards[1].name + "】，只需保持信心，未來的【" + spreadCards[2].name + "】將為您帶來突破性的成果。";
+            } else {
+                badge.innerText = "☯ 跨元素補完啟示";
+                adviceElem.innerText = "牌陣顯示出與您本命（" + userAstro.sign + "）不同的補充元素能量。這提醒您需要嘗試採用與過往不同的思考模式來應對挑戰。【" + spreadCards[1].name + "】正暗示著調和不同意見的重要性。";
+            }
+        }
+
+        function resetSpread() {
+            playSound('click');
+            spreadFlipped = [false, false, false];
+            spreadCards = [null, null, null];
+
+            for (let i = 0; i < 3; i++) {
+                document.getElementById('spreadCard' + i).classList.remove('flipped');
+            }
+            document.getElementById('spreadAnalysisPanel').classList.add('hidden');
+        }
+
+        function renderGameGallery() {
+            const grid = document.getElementById('galleryGrid');
+            if (grid.children.length > 0) return;
+
+            TAROT_DATA.forEach((card) => {
+                const item = document.createElement('div');
+                item.className = "bg-mystic-card p-2 rounded-xl border border-purple-800/50 hover:border-gold-500 transition-all cursor-pointer flex flex-col items-center group shadow-md hover:shadow-gold-500/20";
+                item.onclick = () => showDetailModal(card.id.toString());
+
+                const canvasId = "galleryCanvas_" + card.id;
+                item.innerHTML = `
+                    <canvas id="${canvasId}" width="120" height="150" class="w-full h-28 rounded-lg bg-black/60 mb-1 group-hover:scale-105 transition-transform"></canvas>
+                    <span class="text-[9px] font-cinzel text-gold-500 font-bold">NO. ${card.id}</span>
+                    <h5 class="text-[11px] font-bold text-slate-200 group-hover:text-gold-300">${card.name}</h5>
+                `;
+                grid.appendChild(item);
+
+                setTimeout(() => drawCardArt(canvasId, card.id), 50);
+            });
+        }
+
+        window.onload = function() {
+            const today = new Date().toISOString().split('T')[0];
+            const birthInput = document.getElementById('birthInput');
+            if (birthInput) birthInput.value = today;
+
+            calculateAstrology();
+        };
+
+        // Modal Logic
+        function showDetailModal(id) {
+            const modal = document.getElementById('showcaseModal');
+            const title = document.getElementById('modalTitle');
+            const desc = document.getElementById('modalDesc');
+            modal.classList.remove('hidden');
+
+            const card = TAROT_DATA[parseInt(id) % TAROT_DATA.length] || TAROT_DATA[0];
+            title.innerText = `${card.id}. ${card.name} (${card.en})`;
+            desc.innerText = `【關鍵字】${card.keywords}\n\n【牌義】${card.meaning}\n\n【RPG 故事】${card.story}`;
+        }
+
+        function closeDetailModal() {
+            document.getElementById('showcaseModal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
